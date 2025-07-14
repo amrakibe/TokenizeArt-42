@@ -1,14 +1,17 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.27;
+//  SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ERC721URIStorage, ERC721} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import  "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Amrakibe42 is ERC721URIStorage, Ownable {
-    constructor() ERC721("amrakibe42", "AM42") Ownable(msg.sender) {}
+    uint256  _nextTokenId;
 
-    function safeMint(address to, uint256 tokenId, string memory uri) public onlyOwner {
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+    constructor() ERC721("Amrakibe42", "AM42") Ownable(msg.sender) {}
+
+    function awardItem(address to, string memory tokenURI) onlyOwner public  {
+        uint256 tokenId = _nextTokenId++;
+        _mint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
     }
 }
