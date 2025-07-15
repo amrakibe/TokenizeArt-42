@@ -1,0 +1,13 @@
+{
+    "name": "Amrakibe42",
+    "description": "NFT42 is a platform for creating and managing NFTs with a focus on community and utility.",
+    "image": [
+      "ipfs://bafybeicopghdbrfxtkpmykamyo7oxny6ih3in2zqb5ddzk4oozrk52cfiy"
+    ],
+    "attributes": [
+      {
+        "trait_type": "Artist",
+        "value": "amrakibe"
+      }
+    ]
+  }
