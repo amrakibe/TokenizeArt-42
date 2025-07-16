@@ -6,80 +6,79 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract Amrakibe42 is ERC721URIStorage, Ownable {
-    uint256 public _nextTokenId;
+    uint256 public currentId;
     
     constructor() ERC721("Amrakibe42", "AM42") Ownable(msg.sender) {}
     
     struct Attribute {
-        string trait_type;
+        string traitType;
         string value;
     }
     
-    struct NFTMetadata {
-        string name;
-        string description;
-        string image;
-        string artist;
+    struct TokenData {
+        string title;
+        string info;
+        string visual;
+        string creator;
     }
     
-    NFTMetadata public _tokenMetadata;
+    TokenData public metadata;
     
-    modifier isValidAddress(address value) {
-        require(value != address(0), "Invalid recipient address");
+    modifier isValidAddress(address addr) {
+        require(addr != address(0), "Invalid recipient address");
         _;
     }
     
-    function mintOffChainNft(address to, string memory _tokenURI) public onlyOwner isValidAddress(to) {
-        uint256 tokenId = _nextTokenId++;
-        _mint(to, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
+    function mintOffChain(address recipient, string memory dataURI) public onlyOwner isValidAddress(recipient) {
+        uint256 id = currentId++;
+        _mint(recipient, id);
+        _setTokenURI(id, dataURI);
     }
     
     function mintOnChain(
-        string memory _name,
-        string memory _description,
-        string memory _svgImage,
-        string memory _artist
+        string memory title,
+        string memory info,
+        string memory visual,
+        string memory creator
     ) public onlyOwner   {
-        uint256 tokenId = _nextTokenId++;
+        uint256 id = currentId++;
         
-        _tokenMetadata = NFTMetadata({
-            name: _name,
-            description: _description,
-            image: _svgImage,
-            artist: _artist
+        metadata = TokenData({
+            title: title,
+            info: info,
+            visual: visual,
+            creator: creator
         });
     
-        _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, tokenURI());
+        _safeMint(msg.sender, id);
+        _setTokenURI(id, getTokenURI());
     }
     
-    function generateSVG() internal view   returns (string memory) {
-        string memory generatedSVG = string(
+    function createSVG() internal view returns (string memory) {
+        string memory result = string(
             abi.encodePacked(
                 '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">',
                 '<rect width="100%" height="100%" fill="#ffffff"/>',
                 '<text x="50%" y="50%" font-family="Arial" font-size="2" fill="#000000" ',
                 'text-anchor="middle" dominant-baseline="middle">',
-                _tokenMetadata.image,
+                metadata.visual,
                 '</text></svg>'
             )
         );
-        return generatedSVG;
+        return result;
     }
     
-    function tokenURI() public view  returns (string memory) {
-
-        string memory image = Base64.encode(bytes(generateSVG()));
+    function getTokenURI() public view returns (string memory) {
+        string memory encoded = Base64.encode(bytes(createSVG()));
         
         return string(
             abi.encodePacked(
                 "data:application/json;base64,",
                 Base64.encode(bytes(abi.encodePacked(
-                    '{"name":"', _tokenMetadata.name, '",',
-                    '"description":"', _tokenMetadata.description, '",',
-                    '"image":"data:image/svg+xml;base64,', image, '",',
-                    '"attributes":[{"trait_type":"Artist","value":"', _tokenMetadata.artist, '"}]}'
+                    '{"name":"', metadata.title, '",',
+                    '"description":"', metadata.info, '",',
+                    '"image":"data:image/svg+xml;base64,', encoded, '",',
+                    '"attributes":[{"trait_type":"Creator","value":"', metadata.creator, '"}]}'
                 )))
             )
         );
