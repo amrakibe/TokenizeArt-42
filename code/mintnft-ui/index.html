@@ -1,33 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFT Artwork - 42</title>
-    <link rel="stylesheet" href="styles/style.css">
-</head>
-<body>
-    <div class="nft-canvas">
-        <div class="glow-effect"></div>
-        
-        <div class="geometric-bg">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-        </div>
-        
-        <div class="decorative-lines">
-            <div class="line"></div>
-            <div class="line"></div>
-            <div class="line"></div>
-        </div>
-        
-        <div class="number-42">42</div>
-        <div class="subtitle">The Answer to Everything</div>
-        
-        <div class="nft-info">
-            Digital Art • Unique Token
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mint Your On-Chain NFT</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body>
+    <h1>Mint Your On-Chain NFT</h1>
+    <div class="wallet">
+      <button onclick="connectWallet()">🔗 Connect Wallet</button>
+      <p id="walletAddress">Wallet not connected</p>
     </div>
-</body>
+
+    <form id="mintForm" class="form">
+      <input type="text" id="title" placeholder="Name / Title" required />
+      <textarea id="info" placeholder="Description" required></textarea>
+      <textarea id="visual" placeholder="SVG Code (image)" required></textarea>
+      <input type="text" id="creator" placeholder="Artist Name" required />
+      <button type="submit">Mint NFT</button>
+    </form>
+
+    <script>
+      const CONTRACT_ADDRESS = "0x40ab7dD2607B1755c792C1Ea0C8458fa869192b4";
+      const ABI = [
+        {
+          inputs: [
+            { internalType: "string", name: "title", type: "string" },
+            { internalType: "string", name: "info", type: "string" },
+            { internalType: "string", name: "visual", type: "string" },
+            { internalType: "string", name: "creator", type: "string" },
+          ],
+          name: "mintOnChain",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ];
+
+      let provider, signer, contract, _WEB3, accounts;
+
+      async function connectWallet() {
+        if (!window.ethereum) {
+          alert("Please install MetaMask");
+          return;
+        }
+
+        try {
+          _WEB3 = new Web3(window.ethereum);
+
+          accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+
+          contract = new _WEB3.eth.Contract(ABI, CONTRACT_ADDRESS);
+
+          if (!accounts || accounts.length === 0) {
+            alert("No accounts found. Please connect your wallet.");
+            return;
+          }
+
+          document.getElementById("walletAddress").textContent = "Connected: " + accounts[0];
+        } catch (err) {
+          alert("Connection failed");
+        }
+      }
+
+      document.getElementById("mintForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!contract) return alert("Please connect your wallet first");
+
+        const title = document.getElementById("title").value;
+        const info = document.getElementById("info").value;
+        const visual = document.getElementById("visual").value;
+        const creator = document.getElementById("creator").value;
+
+        if (!title || !info || !visual || !creator) {
+          return alert("Please fill in all fields");
+        }
+
+        try {
+          contract.methods.mintOnChain(title, info, visual, creator).send({
+            from: accounts[0],
+            gasPrice: 3500000,
+          });
+
+          alert("Transaction sent! Waiting for confirmation...");
+
+          alert("NFT Minted Successfully 🎉");
+        } catch (err) {
+          alert("Minting failed");
+        }
+      });
+    </script>
+  </body>
 </html>
