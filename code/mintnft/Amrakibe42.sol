@@ -31,7 +31,7 @@ contract Amrakibe42 is ERC721URIStorage, Ownable {
     
     function mintOffChain(address recipient, string memory dataURI) public onlyOwner isValidAddress(recipient) {
         uint256 id = currentId++;
-        _safeMin(recipient, id);
+        _safeMint(recipient, id);
         _setTokenURI(id, dataURI);
     }
     
