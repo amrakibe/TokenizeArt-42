@@ -31,7 +31,7 @@ contract Amrakibe42 is ERC721URIStorage, Ownable {
     
     function mintOffChain(address recipient, string memory dataURI) public onlyOwner isValidAddress(recipient) {
         uint256 id = currentId++;
-        _safeMint()(recipient, id);
+        _safeMin(recipient, id);
         _setTokenURI(id, dataURI);
     }
     
@@ -58,15 +58,9 @@ contract Amrakibe42 is ERC721URIStorage, Ownable {
     string memory result = string(
         abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">',
-                // Background with rounded corners and soft color
                 '<rect x="0.25" y="0.25" width="9.5" height="9.5" rx="1" ry="1" fill="#f0f4f8" stroke="#ccc" stroke-width="0.2"/>',
-                
-                // Shadow effect (fake shadow by duplicate text with offset)
                 '<text x="5.05" y="5.05" font-family="Arial" font-size="2" fill="#aaa" text-anchor="middle" dominant-baseline="middle">',
-                    metadata.visual,
                 '</text>',
-
-                // Main text
                 '<text x="5" y="5" font-family="Arial" font-size="2" fill="#333" text-anchor="middle" dominant-baseline="middle">',
                     metadata.visual,
                 '</text>',
@@ -75,21 +69,6 @@ contract Amrakibe42 is ERC721URIStorage, Ownable {
     );
     return result;
 }
-
-
-    // function createSVG() internal view returns (string memory) {
-    //     string memory result = string(
-    //         abi.encodePacked(
-    //             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">',
-    //             '<rect width="100%" height="100%" fill="#ffffff"/>',
-    //             '<text x="50%" y="50%" font-family="Arial" font-size="2" fill="#000000" ',
-    //             'text-anchor="middle" dominant-baseline="middle">',
-    //             metadata.visual,
-    //             '</text></svg>'
-    //         )
-    //     );
-    //     return result;
-    // }
     
     function getTokenURI() public view returns (string memory) {
         string memory encoded = Base64.encode(bytes(createSVG()));
